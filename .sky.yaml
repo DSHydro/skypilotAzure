@@ -1,0 +1,8 @@
+# Seems like a bug, can't get VMs to launch into existing resource group...
+#azure:
+#  resource_group_vm: skypilot
+  # storage_account: dshydro
+
+# Project settings (can be overridden in individual job.yaml files)
+# resources:
+#   infra: azure/westus2

@@ -1,0 +1,29 @@
+# Launch VM to connect to via VSCode Remote - SSH.
+# https://docs.skypilot.co/en/latest/examples/interactive-development.html#dev-vscode
+
+resources:
+  # Launch in same datacenter where we have our storage for low-latency
+  # NOTE: GPU access can be limited for different datacenters
+  #infra: azure/westus2
+  memory: 16+
+  cpus: 4+
+  accelerators: T4:1
+  # Automatically *stop* the cluster after being idle for N minutes (don't delete)
+  autostop:
+    idle_minutes: 10
+    down: false  # just stop don't delete.
+
+# Sync code from GitHub repo to VM $PWD
+workdir:
+  url: https://github.com/DSHydro/NeuralHydrologyAzure.git
+  ref: main
+
+# Setup Pixi for Venv management
+setup: |
+  curl -fsSL https://pixi.sh/install.sh | sh
+  source ~/.bashrc
+  pixi --version
+
+# List python packages
+run: |
+  pixi list --environment gpu

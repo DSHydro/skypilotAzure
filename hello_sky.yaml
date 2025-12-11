@@ -1,0 +1,19 @@
+# Run a simple CLI Command
+
+resources:
+  # We don't care where this runs, so let SkyPilot pick the cheapest region.
+  # At least 2vCPUs and 4GB memory for basic jobs, increase min amount?
+  # Default
+  memory: 8+
+  cpus: 4+
+  use_spot: true
+  # Automatically delete the cluster after being idle for N minutes.
+  autostop:
+    idle_minutes: 1
+    down: true  # Use autodown.
+
+setup: |
+  echo "Running setup."
+
+run: |
+  echo "Hello, SkyPilot!"
