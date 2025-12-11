@@ -7,6 +7,10 @@ resources:
   #infra: azure/westus2
   memory: 16+
   cpus: 4+
+  # Multiple Azure instances satisfy T4:1. The cheapest (gpus=T4:1, Standard_NC4as_..., ...) is considered among: Standard_NC4as_T4_v3, Standard_NC16as_T4_v3, Standard_NC8as_T4_v3
+  # Different disk size based on VM type
+  # /dev/root       248G   22G  227G   9% /
+  # /dev/sda1       173G   32K  164G   1% /mnt
   accelerators: T4:1
   # Automatically *stop* the cluster after being idle for N minutes (don't delete)
   autostop:
@@ -24,6 +28,7 @@ setup: |
   source ~/.bashrc
   pixi --version
 
-# List python packages
+# List python packages, this command doesn't really matter since we'll connect
+# via vscode for interactive work
 run: |
-  pixi list --environment gpu
+  nvidia-smi
