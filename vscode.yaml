@@ -3,9 +3,10 @@
 
 resources:
   # Launch in same datacenter where we have our storage for low-latency
-  #infra: azure/westus2
-  memory: 16+
-  cpus: 4+
+  infra: azure/westus2
+  #instance_type: Standard_D4pds_v6
+  #memory: 16+
+  #cpus: 4+
   # Automatically *stop* the cluster after being idle for N minutes (don't delete)
   autostop:
     idle_minutes: 10
