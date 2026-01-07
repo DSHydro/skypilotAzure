@@ -1,0 +1,28 @@
+# Launch VM w/ GPU (3.67/hr)
+# Azure (eastus)   Standard_NC40ads_H100_v5   40      320       H100:1   6.98
+# https://docs.skypilot.co/en/latest/examples/interactive-development.html#dev-vscode
+
+resources:
+# NOTE: had to request quota increase from 0 and got approved for...
+  infra: azure/westus2
+  accelerators: 'H100'
+  # Automatically *stop* the cluster after being idle for N minutes (don't delete)
+  autostop:
+    idle_minutes: 10
+    down: false  # just stop don't delete.
+
+# Sync code from GitHub repo to VM $PWD
+workdir:
+  url: https://github.com/DSHydro/NeuralHydrologyAzure.git
+  ref: main
+
+# Setup Pixi for Venv management
+setup: |
+  curl -fsSL https://pixi.sh/install.sh | sh
+  source ~/.bashrc
+  pixi --version
+  nvidia-smi
+
+# Initialize environment and confirm GPU access
+run: |
+  pixi run -e gpu python -c "import torch; print(torch.cuda.is_available())"
