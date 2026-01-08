@@ -1,0 +1,41 @@
+# Launch VM to connect to via VSCode Remote - SSH.
+# https://docs.skypilot.co/en/latest/examples/interactive-development.html#dev-vscode
+
+resources:
+  # Launch in same datacenter as bucket where we have our storage for low-latency
+  infra: azure/westus2
+  use_spot: false
+  disk_size: 512
+  #disk_tier: medium
+  #network_tier: best
+  autostop:
+    idle_minutes: 10
+    down: false  # just stop don't delete.
+
+# Since reading H5 files likely really slow over FUSE, just copy up front
+# ouputs use MOUNT_CACHED (written locally, then automatically copied to remote)
+# local paths are /outputs and /inputs, remote paths are name: (so )
+file_mounts:
+  /outputs:
+    name: sky-outputs
+    persistent: True
+    mode: MOUNT_CACHED
+  /inputs:
+    name: neuralhydro-demo
+    persistent: True
+    mode: MOUNT
+
+# Sync code from GitHub repo to VM $PWD
+workdir:
+  url: https://github.com/DSHydro/NeuralHydrologyAzure.git
+  ref: main
+
+# Setup Pixi for Venv management
+setup: |
+  curl -fsSL https://pixi.sh/install.sh | sh
+  source ~/.bashrc
+
+run: |
+  # Download some data (need up-to-date token)
+  # wget -q -nc "https://dshydro.blob.core.windows.net/accelerator2025/basin_timeseries_v1p2_metForcing_obsFlow.zip?sp=r&st=2026-01-08T20:17:01Z&se=2026-01-09T04:32:01Z&skoid=1d5b19db-d392-4e72-8f2f-fde921e33edc&sktid=f6b6dd5b-f02f-441a-99a0-162ac5060bd2&skt=2026-01-08T20:17:01Z&ske=2026-01-09T04:32:01Z&sks=b&skv=2024-11-04&spr=https&sv=2024-11-04&sr=b&sig=VX26PUcOwnWG7g%2FVhcUoWkTs1dq8EgcxPU4Aiy4i%2Fzk%3D" -O basin_timeseries_v1p2_metForcing_obsFlow.zip
+  echo "Hello world"

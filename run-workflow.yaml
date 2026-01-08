@@ -1,0 +1,56 @@
+# Launch VM to connect to via VSCode Remote - SSH.
+# https://docs.skypilot.co/en/latest/examples/interactive-development.html#dev-vscode
+
+resources:
+  # Launch in same datacenter as bucket where we have our storage for low-latency
+  infra: azure/westus2
+  use_spot: false
+  disk_size: 512
+  autostop:
+    idle_minutes: 10
+    down: false  # just stop don't delete.
+
+# Since reading H5 files likely really slow over FUSE, just copy up front
+# ouputs use MOUNT_CACHED (written locally, then automatically copied to remote)
+# local paths are /outputs and /inputs, remote paths are name: (so )
+file_mounts:
+  /outputs:
+    name: sky-outputs
+    persistent: True
+    mode: MOUNT_CACHED
+  /inputs:
+    name: neuralhydro-demo
+    persistent: True
+    mode: COPY
+
+# Sync code from GitHub repo to VM $PWD
+workdir:
+  url: https://github.com/DSHydro/NeuralHydrologyAzure.git
+  ref: main
+
+# Setup Pixi for Venv management
+setup: |
+  curl -fsSL https://pixi.sh/install.sh | sh
+  source ~/.bashrc
+
+run: |
+  # Activate pixi env
+  pixi shell
+
+  # Setup expected data folder structure
+  mkdir ./data
+  ln -s /inputs/basin_dataset_public_v1p2 ./data/CAMELS_US
+
+  # Run Training
+  nh-run train --gpu -1 --config-file 1_basin.yml
+
+  OUTDIR=`ls runs/`
+
+  # Run Eval
+  nh-run evaluate --run-dir ./runs/$OUTDIR
+
+  # Create Plots
+  python visualize-tutorial-output.py  ./runs/$OUTDIR
+
+  # If we put it in /outputs it will be synced back to Azure Blob Storage
+  cp -r ./runs/$OUTDIR /outputs/

@@ -1,0 +1,29 @@
+# This workflow is to setup a skypilot-managed bucket to put input data in.
+# After copying data to the neuralhydro-hernan bucket we can subsequently use mode: COPY to
+# copy data from the bucket to any VM we launch.
+
+resources:
+  infra: azure/westus2
+  use_spot: false
+  disk_size: 512
+  autostop:
+    idle_minutes: 10
+    down: false  # just stop don't delete.
+
+file_mounts:
+  /inputs:
+    name: neuralhydro-hernan
+    persistent: True
+    mode: MOUNT_CACHED
+
+# Setup Pixi for Venv management
+setup: |
+  curl -fsSL https://pixi.sh/install.sh | sh
+  source ~/.bashrc
+  pixi global install unzip
+
+run: |
+  # Download data (need up-to-date token)
+  wget -q -nc "https://dshydro.blob.core.windows.net/accelerator2025/data_updated.zip?sp=r&st=2026-01-08T21:48:58Z&se=2026-01-09T06:03:58Z&skoid=1d5b19db-d392-4e72-8f2f-fde921e33edc&sktid=f6b6dd5b-f02f-441a-99a0-162ac5060bd2&skt=2026-01-08T21:48:58Z&ske=2026-01-09T06:03:58Z&sks=b&skv=2024-11-04&spr=https&sv=2024-11-04&sr=b&sig=%2FeSBdzCWS4lspgZGmpMlATQ52c%2BXR%2B3CO9nerP3yscs%3D" -O data_updated.zip
+
+  unzip data_updated.zip
