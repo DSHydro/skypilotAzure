@@ -87,3 +87,8 @@ CLUSTER_NAME=sky-`whoami`-vscode-gpu
 CONFIG_FILE=vscode-gpu.yaml
 sky launch -c $CLUSTER_NAME $CONFIG_FILE
 ```
+
+
+sky launch vm-plus-bucket-mount.yaml --dryrun
+
+

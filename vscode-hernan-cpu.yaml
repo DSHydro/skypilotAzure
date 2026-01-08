@@ -1,0 +1,39 @@
+# Launch VM to connect to via VSCode Remote - SSH.
+# https://docs.skypilot.co/en/latest/examples/interactive-development.html#dev-vscode
+
+resources:
+  # Launch in same datacenter as bucket where we have our storage for low-latency
+  infra: azure/westus2
+  use_spot: false
+  disk_size: 512
+  autostop:
+    idle_minutes: 10
+    down: false  # just stop don't delete.
+
+# Local /inputs and /outputs synced to skypilot-managed buckets
+file_mounts:
+  /outputs:
+    name: sky-outputs
+    persistent: True
+    mode: MOUNT_CACHED
+  /inputs:
+    name: neuralhydro-hernan
+    persistent: True
+    mode: MOUNT_CACHED
+
+# Sync code from GitHub repo to VM $PWD
+workdir:
+  url: https://github.com/DSHydro/NeuralHydrologyAzure.git
+  ref: main
+
+# Setup Pixi for Venv management
+setup: |
+  curl -fsSL https://pixi.sh/install.sh | sh
+  source ~/.bashrc
+  # pre-install the environment
+  pixi install
+
+# List python packages, this command doesn't really matter since we'll connect
+# via vscode for interactive work
+run: |
+  echo "Hello Azure!"

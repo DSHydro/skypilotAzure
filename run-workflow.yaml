@@ -1,14 +1,12 @@
-# Launch VM to connect to via VSCode Remote - SSH.
-# https://docs.skypilot.co/en/latest/examples/interactive-development.html#dev-vscode
+# Non-interactive workflow (run training, copy outputs to bucket, then exit)
 
 resources:
-  # Launch in same datacenter as bucket where we have our storage for low-latency
   infra: azure/westus2
   use_spot: false
   disk_size: 512
   autostop:
     idle_minutes: 10
-    down: false  # just stop don't delete.
+    down: true
 
 # Since reading H5 files likely really slow over FUSE, just copy up front
 # ouputs use MOUNT_CACHED (written locally, then automatically copied to remote)
